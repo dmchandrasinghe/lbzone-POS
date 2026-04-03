@@ -1,0 +1,52 @@
+﻿<Application x:Class="LasanthaPOS.Desktop.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:LasanthaPOS.Desktop"
+             StartupUri="Views/LoginWindow.xaml">
+    <Application.Resources>
+        <SolidColorBrush x:Key="PrimaryBrush" Color="#1976D2"/>
+        <SolidColorBrush x:Key="PrimaryDarkBrush" Color="#0D47A1"/>
+        <SolidColorBrush x:Key="AccentBrush" Color="#FF6F00"/>
+        <SolidColorBrush x:Key="SidebarBrush" Color="#263238"/>
+        <SolidColorBrush x:Key="SidebarFgBrush" Color="#ECEFF1"/>
+        <SolidColorBrush x:Key="SidebarHoverBrush" Color="#37474F"/>
+
+        <Style TargetType="Button" x:Key="NavButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#ECEFF1"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="16,12"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#37474F"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="Button" x:Key="PrimaryButton">
+            <Setter Property="Background" Value="#1976D2"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#0D47A1"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="Button" x:Key="DangerButton">
+            <Setter Property="Background" Value="#C62828"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+    </Application.Resources>
+</Application>

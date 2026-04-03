@@ -1,0 +1,27 @@
+<Window x:Class="LasanthaPOS.Desktop.Views.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Lasantha POS — Login" Height="400" Width="420"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
+        Background="#1C1C2E">
+    <Grid>
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="320">
+            <TextBlock Text="Lasantha Electronics" FontSize="22" FontWeight="Bold"
+                       Foreground="#FF6F00" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+            <TextBlock Text="Point of Sale System" FontSize="14"
+                       Foreground="#B0BEC5" HorizontalAlignment="Center" Margin="0,0,0,30"/>
+
+            <TextBlock Text="Username" Foreground="#ECEFF1" Margin="0,0,0,4"/>
+            <TextBox x:Name="TxtUsername" Height="36" FontSize="14" Padding="8,6" Margin="0,0,0,16"/>
+
+            <TextBlock Text="Password" Foreground="#ECEFF1" Margin="0,0,0,4"/>
+            <PasswordBox x:Name="TxtPassword" Height="36" FontSize="14" Padding="8,6" Margin="0,0,0,24"/>
+
+            <TextBlock x:Name="TxtError" Foreground="#EF5350" Margin="0,0,0,8"
+                       HorizontalAlignment="Center" Visibility="Collapsed"/>
+
+            <Button Content="Login" Style="{StaticResource PrimaryButton}"
+                    Height="40" FontSize="15" Click="BtnLogin_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

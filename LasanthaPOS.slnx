@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/LasanthaPOS.API/LasanthaPOS.API.csproj" />
+    <Project Path="src/LasanthaPOS.Desktop/LasanthaPOS.Desktop.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,65 @@
+<Page x:Class="LasanthaPOS.Desktop.Views.ReportPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Daily Report" Background="#F5F5F5">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Daily Sales Report" FontSize="24"
+                   FontWeight="Bold" Foreground="#1976D2" Margin="0,0,0,16"/>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,20">
+            <DatePicker x:Name="DtReport" Height="36" Width="180" Margin="0,0,8,0"/>
+            <Button Content="Load Report" Style="{StaticResource PrimaryButton}" Height="36" Click="BtnLoad_Click"/>
+        </StackPanel>
+
+        <Border Grid.Row="2" Background="White" BorderBrush="#E0E0E0" BorderThickness="1" Padding="24">
+            <StackPanel>
+                <Grid Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Background="#E3F2FD" Padding="16" Margin="0,0,8,0">
+                        <StackPanel>
+                            <TextBlock Text="Total Sales" FontSize="12" Foreground="#607D8B"/>
+                            <TextBlock x:Name="TxtTotalSales" Text="0" FontSize="28" FontWeight="Bold" Foreground="#1976D2"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="1" Background="#E8F5E9" Padding="16" Margin="0,0,8,0">
+                        <StackPanel>
+                            <TextBlock Text="Revenue" FontSize="12" Foreground="#607D8B"/>
+                            <TextBlock x:Name="TxtRevenue" Text="$0.00" FontSize="22" FontWeight="Bold" Foreground="#2E7D32"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="2" Background="#FFF8E1" Padding="16" Margin="0,0,8,0">
+                        <StackPanel>
+                            <TextBlock Text="Discounts" FontSize="12" Foreground="#607D8B"/>
+                            <TextBlock x:Name="TxtDiscounts" Text="$0.00" FontSize="22" FontWeight="Bold" Foreground="#FF8F00"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="3" Background="#F3E5F5" Padding="16" Margin="0,0,8,0">
+                        <StackPanel>
+                            <TextBlock Text="Cash Sales" FontSize="12" Foreground="#607D8B"/>
+                            <TextBlock x:Name="TxtCashSales" Text="0" FontSize="28" FontWeight="Bold" Foreground="#6A1B9A"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="4" Background="#FCE4EC" Padding="16">
+                        <StackPanel>
+                            <TextBlock Text="Card Sales" FontSize="12" Foreground="#607D8B"/>
+                            <TextBlock x:Name="TxtCardSales" Text="0" FontSize="28" FontWeight="Bold" Foreground="#C62828"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+                <TextBlock x:Name="TxtStatus" FontSize="13" Foreground="#607D8B"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: lasantha_pos_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: lasantha_pos
+      POSTGRES_USER: posuser
+      POSTGRES_PASSWORD: pospassword123
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U posuser -d lasantha_pos"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./src/LasanthaPOS.API
+      dockerfile: Dockerfile
+    container_name: lasantha_pos_api
+    restart: unless-stopped
+    ports:
+      - "5100:8080"
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=lasantha_pos;Username=posuser;Password=pospassword123"
+      ASPNETCORE_ENVIRONMENT: Production
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

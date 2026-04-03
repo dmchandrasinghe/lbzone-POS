@@ -1,0 +1,26 @@
+<Page x:Class="LasanthaPOS.Desktop.Views.WarrantyPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Warranty" Background="#F5F5F5">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="Warranty Management" FontSize="24"
+                   FontWeight="Bold" Foreground="#1976D2" Margin="0,0,0,16"/>
+        <DataGrid Grid.Row="1" x:Name="DgWarranties" AutoGenerateColumns="False"
+                  IsReadOnly="True" CanUserAddRows="False"
+                  GridLinesVisibility="Horizontal" BorderThickness="1" BorderBrush="#E0E0E0"
+                  Background="White" AlternatingRowBackground="#F9F9F9" FontSize="13">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Product" Binding="{Binding ProductName}" Width="*"/>
+                <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="150"/>
+                <DataGridTextColumn Header="Start" Binding="{Binding StartDate, StringFormat=dd/MM/yyyy}" Width="100"/>
+                <DataGridTextColumn Header="End" Binding="{Binding EndDate, StringFormat=dd/MM/yyyy}" Width="100"/>
+                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="90"/>
+                <DataGridTextColumn Header="Notes" Binding="{Binding ClaimNotes}" Width="200"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Page>
