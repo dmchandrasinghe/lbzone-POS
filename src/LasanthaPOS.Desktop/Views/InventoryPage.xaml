@@ -14,16 +14,24 @@
                    FontWeight="Bold" Foreground="#1976D2" Margin="0,0,0,16"/>
 
         <!-- Toolbar -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
-            <TextBox x:Name="TxtSearch" Width="300" Height="36" Padding="8,6" FontSize="14"
+        <WrapPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
+            <TextBox x:Name="TxtSearch" Width="260" Height="36" Padding="8,6" FontSize="14"
                      Margin="0,0,8,0"
                      KeyUp="TxtSearch_KeyUp"/>
             <Button Content="Search" Style="{StaticResource PrimaryButton}" Height="36" Margin="0,0,8,0" Click="BtnSearch_Click"/>
             <Button Content="Load All" Style="{StaticResource PrimaryButton}" Height="36" Margin="0,0,8,0" Click="BtnLoadAll_Click"/>
             <Button Content="⚠ Low Stock" Height="36" Background="#FF8F00" Foreground="White"
                     BorderThickness="0" Padding="12,4" Margin="0,0,8,0" Click="BtnLowStock_Click" Cursor="Hand"/>
-            <Button Content="+ Add Product" Style="{StaticResource PrimaryButton}" Height="36" Click="BtnAdd_Click"/>
-        </StackPanel>
+            <Button Content="+ Add Product" Style="{StaticResource PrimaryButton}" Height="36" Margin="0,0,8,0" Click="BtnAdd_Click"/>
+            <Button Content="📥 Import CSV" Height="36" Background="#2E7D32" Foreground="White"
+                    BorderThickness="0" Padding="12,4" Margin="0,0,8,0" Click="BtnImportCsv_Click" Cursor="Hand"/>
+            <Button Content="📄 CSV Template" Height="36" Background="#558B2F" Foreground="White"
+                    BorderThickness="0" Padding="12,4" Margin="0,0,8,0" Click="BtnDownloadTemplate_Click" Cursor="Hand"/>
+            <Button Content="🏷 Categories" Height="36" Background="#5C6BC0" Foreground="White"
+                    BorderThickness="0" Padding="12,4" Margin="0,0,8,0" Click="BtnCategories_Click" Cursor="Hand"/>
+            <Button Content="🏭 Suppliers" Height="36" Background="#00838F" Foreground="White"
+                    BorderThickness="0" Padding="12,4" Click="BtnSuppliers_Click" Cursor="Hand"/>
+        </WrapPanel>
 
         <!-- Product Grid -->
         <DataGrid Grid.Row="2" x:Name="DgProducts" AutoGenerateColumns="False"

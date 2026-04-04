@@ -67,7 +67,10 @@ Manage stock of electronic goods with full traceability.
 | Expiration Date  | Applicable for items with shelf life     |
 
 **Features:**
-- Add, edit, delete inventory items
+- Add, edit, delete inventory items (set buying date automatically to today)
+- allow add products to invotory from CSV  as well also show export template of inventory
+- Add Product categories Register Suppliers
+- set expiration period  motnth and year instead of expire date
 - Low stock alerts / reorder threshold
 - Stock level adjustment (manual correction)
 - Supplier management (name, contact, lead time)

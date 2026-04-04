@@ -1,0 +1,105 @@
+<Window x:Class="LasanthaPOS.Desktop.Views.CategoriesSuppliersDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Height="520" Width="660"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"
+        MinHeight="420" MinWidth="500">
+
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title -->
+        <TextBlock x:Name="TxtTitle" Grid.Row="0"
+                   FontSize="18" FontWeight="Bold"
+                   Margin="0,0,0,10"/>
+
+        <!-- Data grid -->
+        <DataGrid x:Name="Dg" Grid.Row="1"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  SelectionMode="Single"
+                  HeadersVisibility="Column"
+                  GridLinesVisibility="Horizontal"
+                  AlternatingRowBackground="#FAFAFA"
+                  Margin="0,0,0,12">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID"   Binding="{Binding Id}"           Width="50"/>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}"         Width="2*"/>
+                <DataGridTextColumn x:Name="ColPhone" Header="Phone"
+                                    Binding="{Binding ContactPhone}"
+                                    Width="*" Visibility="Collapsed"/>
+                <DataGridTextColumn x:Name="ColEmail" Header="Email"
+                                    Binding="{Binding Email}"
+                                    Width="*" Visibility="Collapsed"/>
+                <DataGridTemplateColumn Header="" Width="70">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Delete"
+                                    Background="#e53935" Foreground="White"
+                                    BorderThickness="0" Padding="6,2"
+                                    Click="BtnDelete_Click" Tag="{Binding}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Add form -->
+        <Border Grid.Row="2"
+                Background="#F9F9F9" BorderBrush="#E0E0E0" BorderThickness="1"
+                CornerRadius="4" Padding="12" Margin="0,0,0,10">
+            <StackPanel>
+                <TextBlock Text="Add New" FontWeight="SemiBold" Margin="0,0,0,8"/>
+
+                <!-- Name + Phone row -->
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel Margin="0,0,8,0">
+                        <TextBlock Text="Name *" FontSize="11" Foreground="Gray"/>
+                        <TextBox x:Name="TxtNewName" Width="200" Height="30"
+                                 Padding="6,4" Margin="0,2,0,0"/>
+                    </StackPanel>
+
+                    <StackPanel x:Name="PnlPhone" Visibility="Collapsed" Margin="0,0,8,0">
+                        <TextBlock Text="Phone" FontSize="11" Foreground="Gray"/>
+                        <TextBox x:Name="TxtNewPhone" Width="150" Height="30"
+                                 Padding="6,4" Margin="0,2,0,0"/>
+                    </StackPanel>
+
+                    <Button Content="Add"
+                            Width="70" Height="30"
+                            VerticalAlignment="Bottom"
+                            Background="#1565C0" Foreground="White"
+                            BorderThickness="0"
+                            Click="BtnAdd_Click"/>
+                </StackPanel>
+
+                <!-- Email row (suppliers only) -->
+                <StackPanel x:Name="PnlEmail" Visibility="Collapsed" Margin="0,6,0,0">
+                    <TextBlock Text="Email" FontSize="11" Foreground="Gray"/>
+                    <TextBox x:Name="TxtNewEmail" Height="30"
+                             Padding="6,4" Margin="0,2,0,0"/>
+                </StackPanel>
+
+                <TextBlock x:Name="TxtAddError"
+                           FontSize="11" Foreground="#e53935"
+                           Margin="0,6,0,0" Visibility="Collapsed"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Footer -->
+        <Button Grid.Row="3" Content="Close"
+                HorizontalAlignment="Right"
+                Width="80" Height="30"
+                Background="#757575" Foreground="White"
+                BorderThickness="0"
+                Click="BtnClose_Click"/>
+    </Grid>
+</Window>

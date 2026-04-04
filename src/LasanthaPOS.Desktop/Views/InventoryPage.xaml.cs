@@ -1,8 +1,12 @@
+using System.IO;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using LasanthaPOS.Desktop.Models;
 using LasanthaPOS.Desktop.Services;
+using Microsoft.Win32;
 
 namespace LasanthaPOS.Desktop.Views;
 
@@ -77,5 +81,82 @@ public partial class InventoryPage : Page
                 await LoadAll();
             }
         }
+    }
+
+    private async void BtnImportCsv_Click(object sender, RoutedEventArgs e)
+    {
+        var dlg = new OpenFileDialog
+        {
+            Title = "Select CSV file to import",
+            Filter = "CSV Files (*.csv)|*.csv",
+            DefaultExt = ".csv"
+        };
+        if (dlg.ShowDialog() != true) return;
+
+        try
+        {
+            using var stream = File.OpenRead(dlg.FileName);
+            using var content = new MultipartFormDataContent();
+            var fileContent = new StreamContent(stream);
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
+            content.Add(fileContent, "file", Path.GetFileName(dlg.FileName));
+
+            var response = await _api.PostMultipartAsync("products/import-csv", content);
+            var json = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                MessageBox.Show($"Import completed.\n{json}", "Import Success",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                await LoadAll();
+            }
+            else
+            {
+                MessageBox.Show($"Import failed:\n{json}", "Import Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error: {ex.Message}", "Import Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private async void BtnDownloadTemplate_Click(object sender, RoutedEventArgs e)
+    {
+        var dlg = new SaveFileDialog
+        {
+            Title = "Save CSV Template",
+            FileName = "inventory_template.csv",
+            Filter = "CSV Files (*.csv)|*.csv",
+            DefaultExt = ".csv"
+        };
+        if (dlg.ShowDialog() != true) return;
+
+        try
+        {
+            var bytes = await _api.GetBytesAsync("products/csv-template");
+            File.WriteAllBytes(dlg.FileName, bytes);
+            MessageBox.Show($"Template saved to:\n{dlg.FileName}\n\nFill in the rows and use Import CSV to add products.",
+                "Template Saved", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void BtnCategories_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new CategoriesSuppliersDialog(_api, mode: "Categories");
+        dialog.Owner = Window.GetWindow(this);
+        if (dialog.ShowDialog() == true) _ = LoadAll();
+    }
+
+    private void BtnSuppliers_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new CategoriesSuppliersDialog(_api, mode: "Suppliers");
+        dialog.Owner = Window.GetWindow(this);
+        if (dialog.ShowDialog() == true) _ = LoadAll();
     }
 }

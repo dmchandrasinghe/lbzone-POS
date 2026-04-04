@@ -136,6 +136,16 @@ public class CategoriesController : ControllerBase
         await _db.SaveChangesAsync();
         return Ok(category);
     }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var cat = await _db.Categories.FindAsync(id);
+        if (cat is null) return NotFound();
+        _db.Categories.Remove(cat);
+        await _db.SaveChangesAsync();
+        return NoContent();
+    }
 }
 
 [ApiController]
@@ -154,5 +164,15 @@ public class SuppliersController : ControllerBase
         _db.Suppliers.Add(supplier);
         await _db.SaveChangesAsync();
         return Ok(supplier);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var sup = await _db.Suppliers.FindAsync(id);
+        if (sup is null) return NotFound();
+        _db.Suppliers.Remove(sup);
+        await _db.SaveChangesAsync();
+        return NoContent();
     }
 }

@@ -62,4 +62,14 @@ public class ApiService
 
     public async Task<HttpResponseMessage> DeleteAsync(string endpoint) =>
         await _http.DeleteAsync(endpoint);
+
+    public async Task<HttpResponseMessage> PostMultipartAsync(string endpoint, MultipartFormDataContent content) =>
+        await _http.PostAsync(endpoint, content);
+
+    public async Task<byte[]> GetBytesAsync(string endpoint)
+    {
+        var response = await _http.GetAsync(endpoint);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadAsByteArrayAsync();
+    }
 }
