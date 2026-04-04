@@ -25,7 +25,9 @@
             <Button Content="+ Add Product" Style="{StaticResource PrimaryButton}" Height="36" Margin="0,0,8,0" Click="BtnAdd_Click"/>
             <Button Content="📥 Import CSV" Height="36" Background="#2E7D32" Foreground="White"
                     BorderThickness="0" Padding="12,4" Margin="0,0,8,0" Click="BtnImportCsv_Click" Cursor="Hand"/>
-            <Button Content="📄 CSV Template" Height="36" Background="#558B2F" Foreground="White"
+            <Button Content="� Export CSV" Height="36" Background="#1565C0" Foreground="White"
+                    BorderThickness="0" Padding="12,4" Margin="0,0,8,0" Click="BtnExportCsv_Click" Cursor="Hand"/>
+            <Button Content="�📄 CSV Template" Height="36" Background="#558B2F" Foreground="White"
                     BorderThickness="0" Padding="12,4" Margin="0,0,8,0" Click="BtnDownloadTemplate_Click" Cursor="Hand"/>
             <Button Content="🏷 Categories" Height="36" Background="#5C6BC0" Foreground="White"
                     BorderThickness="0" Padding="12,4" Margin="0,0,8,0" Click="BtnCategories_Click" Cursor="Hand"/>

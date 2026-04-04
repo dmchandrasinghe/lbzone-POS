@@ -40,7 +40,7 @@ Desktop connects to `http://localhost:5100`.
 | Supplier management (name, phone, email)         | ✅     |
 | CSV import of products                           | ✅     |
 | Export CSV template for import                   | ✅     |
-| Export inventory report (PDF / CSV)              | ❌     |
+| Export inventory report (PDF / CSV)              | ✅     |
 | Expiration: month+year input instead of date     | ❌     |
 | Purchase history per item                        | ❌     |
 | Stock adjustment (manual correction)             | ❌     |

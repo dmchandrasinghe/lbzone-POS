@@ -41,6 +41,8 @@ public class CartItem
     public decimal UnitPrice { get; set; }
     public decimal DiscountAmount { get; set; }
     public decimal LineTotal => (UnitPrice * Quantity) - DiscountAmount;
+    public DateTime PurchaseDate { get; set; }
+    public DateTime? ExpirationDate { get; set; }
     public override string ToString() => $"{ItemCode} | {ProductName} | Qty:{Quantity} | ${UnitPrice:F2} | Disc:${DiscountAmount:F2} | Total:${LineTotal:F2}";
 }
 

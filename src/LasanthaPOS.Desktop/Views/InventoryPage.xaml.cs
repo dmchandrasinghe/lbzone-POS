@@ -122,8 +122,33 @@ public partial class InventoryPage : Page
         }
     }
 
-    private async void BtnDownloadTemplate_Click(object sender, RoutedEventArgs e)
+    private async void BtnExportCsv_Click(object sender, RoutedEventArgs e)
     {
+        var dlg = new SaveFileDialog
+        {
+            Title = "Export Inventory as CSV",
+            FileName = $"inventory_{DateTime.Today:yyyyMMdd}.csv",
+            Filter = "CSV Files (*.csv)|*.csv",
+            DefaultExt = ".csv"
+        };
+        if (dlg.ShowDialog() != true) return;
+
+        try
+        {
+            var bytes = await _api.GetBytesAsync("products/export-csv");
+            File.WriteAllBytes(dlg.FileName, bytes);
+            TxtStatus.Text = $"Exported to: {dlg.FileName}";
+            MessageBox.Show($"Inventory exported successfully.\n\n{dlg.FileName}",
+                "Export Successful", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Export failed: {ex.Message}", "Export Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private async void BtnDownloadTemplate_Click(object sender, RoutedEventArgs e)    {
         var dlg = new SaveFileDialog
         {
             Title = "Save CSV Template",

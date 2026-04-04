@@ -28,9 +28,12 @@ services:
     environment:
       ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=lasantha_pos;Username=posuser;Password=pospassword123"
       ASPNETCORE_ENVIRONMENT: Production
+    volumes:
+      - api_logs:/app/logs
     depends_on:
       db:
         condition: service_healthy
 
 volumes:
   pgdata:
+  api_logs:

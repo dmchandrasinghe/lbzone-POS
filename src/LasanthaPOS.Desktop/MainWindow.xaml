@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:LasanthaPOS.Desktop"
         mc:Ignorable="d"
         Title="Lasantha Electronics POS" Height="700" Width="1200"
-        WindowStartupLocation="CenterScreen" Background="#F5F5F5">
+        WindowStartupLocation="CenterScreen" Background="#F5F5F5"
+        WindowState="Maximized">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>

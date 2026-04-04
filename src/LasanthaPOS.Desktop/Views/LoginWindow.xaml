@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Lasantha POS — Login" Height="400" Width="420"
         WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
-        Background="#1C1C2E">
+        Background="#1C1C2E" KeyDown="Window_KeyDown">
     <Grid>
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="320">
             <TextBlock Text="Lasantha Electronics" FontSize="22" FontWeight="Bold"
