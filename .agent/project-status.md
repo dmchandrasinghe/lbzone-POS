@@ -1,6 +1,6 @@
 # LasanthaPOS — Project Status for AI Agents
 
-> Last updated: 2026-04-04
+> Last updated: 2026-04-05
 > Status legend: ✅ Done · 🔶 Partial · ❌ Not started
 
 ---
@@ -9,8 +9,8 @@
 
 | Layer    | Technology                                      | Details                          |
 |----------|-------------------------------------------------|----------------------------------|
-| Frontend | C# WPF (.NET 8) — Windows Desktop App          | `src/LasanthaPOS.Desktop/`       |
-| Backend  | C# ASP.NET Core Web API (.NET 8)               | `src/LasanthaPOS.API/`           |
+| Frontend | C# WPF (.NET 10) — Windows Desktop App         | `src/LasanthaPOS.Desktop/`       |
+| Backend  | C# ASP.NET Core Web API (.NET 10)              | `src/LasanthaPOS.API/`           |
 | Database | PostgreSQL 16                                   | Docker container, port 5432      |
 | Runtime  | Docker Compose                                  | `docker-compose.yml`             |
 
@@ -131,7 +131,11 @@ Desktop connects to `http://localhost:5100`.
 |--------------------------------------------------|--------|
 | Dockerised API + PostgreSQL via Compose          | ✅     |
 | Desktop shortcut creation script                 | ✅     |
-| EF Core migrations                               | ✅     |
+| EF Core migrations (auto-applied on API startup) | ✅     |
+| Versioned SQL migration runner (`db/migrate.ps1`)       | ✅     |
+| SQL migration files (`db/migrations/V###__*.sql`)       | ✅     |
+| deploy.bat — auto-install deps, docker, DB migrate, build, launch | ✅ |
+| build-frontend.bat — desktop-only build (PS 5/6/7 safe) | ✅ |
 | Audit log (user + timestamp on CUD operations)  | ❌     |
 | Automated daily database backup                  | ❌     |
 | Multi-terminal / multi-branch support            | ❌     |
@@ -157,7 +161,10 @@ Desktop connects to `http://localhost:5100`.
 | `src/LasanthaPOS.Desktop/Views/ReportPage.xaml(.cs)`           | Daily report UI                               |
 | `src/LasanthaPOS.Desktop/Views/CategoriesSuppliersDialog.xaml` | Category & supplier management dialog         |
 | `docker-compose.yml`                                           | PostgreSQL + API container definitions        |
-| `deploy.bat`                                                   | Full deploy script (choco, docker, build, shortcut) |
+| `db/migrate.ps1`                                               | Versioned SQL migration runner (PS 5.1/6/7)   |
+| `db/migrations/V001__initial_schema.sql`                       | Initial full schema — idempotent, all 8 tables + indexes |
+| `deploy.bat`                                                   | Full deploy: deps → docker → DB migrate → build → launch |
+| `build-frontend.bat`                                           | Desktop-only build (no Docker/backend steps)  |
 | `lasantha-pos.md`                                              | Full requirements document                    |
 
 ---
@@ -214,6 +221,39 @@ Warranty        — Id, SaleItemId, CustomerId, ProductId, StartDate, EndDate, T
 | GET    | /api/suppliers                   | Suppliers        |
 | POST   | /api/suppliers                   | Suppliers        |
 | DELETE | /api/suppliers/{id}              | Suppliers        |
+
+---
+
+## Database Migration Architecture
+
+Two complementary migration mechanisms coexist — both are applied on every deploy:
+
+| Mechanism | Runner | Tracking table | When it runs |
+|---|---|---|---|
+| **SQL scripts** (`V###__*.sql`) | `db/migrate.ps1` (PowerShell) | `db_migrations` | deploy.bat STEP 4a — after PostgreSQL is ready, before API starts |
+| **EF Core C# migrations** | `db.Database.Migrate()` in `Program.cs` | `__EFMigrationsHistory` | API container startup |
+
+`V001__initial_schema.sql` also inserts its ID into `__EFMigrationsHistory` so EF Core skips it, preventing double-application.
+
+### Migration file naming convention
+```
+db/migrations/
+  V001__initial_schema.sql          ← applied → skipped on re-run
+  V002__add_discount_table.sql      ← pending → applied in order
+  V003__seed_reference_data.sql     ← pending → applied in order
+```
+
+### How the runner works (`db/migrate.ps1`)
+- Reads `V*.sql` files in lexicographic order
+- Checks `db_migrations` table for already-applied versions — skips them
+- Wraps each new migration in `BEGIN … COMMIT` with `\set ON_ERROR_STOP 1`
+- On failure: transaction rolls back, script exits 1, deploy.bat logs error and continues
+- Uses `docker cp` + `docker exec psql` — compatible with PS 5.1 / 6 / 7
+
+### Adding a new migration
+1. Create `db/migrations/V002__your_description.sql`
+2. Write idempotent SQL (`IF NOT EXISTS`, `ON CONFLICT DO NOTHING`)
+3. Run `deploy.bat` — only the new script will execute
 
 ---
 
