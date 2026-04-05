@@ -172,6 +172,43 @@ if errorlevel 1 (
     call :log_ok "Backend containers are running."
 )
 
+:: Wait for PostgreSQL to be ready before running migrations
+call :log_info "Waiting for PostgreSQL to be ready..."
+set /a "dbwait=0"
+:wait_db
+    timeout /t 3 /nobreak >nul
+    set /a "dbwait+=3"
+    docker exec lasantha_pos_db pg_isready -U posuser -d lasantha_pos >nul 2>&1
+    if not errorlevel 1 goto :run_db_mig
+    if !dbwait! lss 60 (
+        call :log_info "  PostgreSQL not ready yet... (!dbwait! s)"
+        goto :wait_db
+    )
+    call :log_warn "PostgreSQL did not become ready in 60 s — skipping migrations."
+    goto :check_api_health
+
+:run_db_mig
+call :log_ok "PostgreSQL is ready."
+
+call :log_step "STEP 4a" "Running database migrations"
+
+if exist "%ROOT%\db\migrate.ps1" (
+    "%PS5%" -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\db\migrate.ps1" ^
+        -ContainerName "lasantha_pos_db" ^
+        -DbUser "posuser" ^
+        -DbName "lasantha_pos" ^
+        -MigrationsDir "%ROOT%\db\migrations"
+    if errorlevel 1 (
+        call :log_error "Database migration failed — check output above."
+        set "ERRORS=1"
+    ) else (
+        call :log_ok "Database migrations complete."
+    )
+) else (
+    call :log_warn "db\migrate.ps1 not found — skipping migrations."
+)
+
+:check_api_health
 :: Wait for API health (PS5/6/7 compatible — no ternary)
 call :log_info "Waiting for API to become ready (up to 90 s)..."
 set /a "waited=0"
