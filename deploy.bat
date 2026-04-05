@@ -76,10 +76,15 @@ call :refresh_path
 
 :: --- .NET 10 SDK ---
 call :log_info "Checking .NET 10 SDK..."
-dotnet --list-sdks 2>nul | findstr /B "10\." >nul 2>&1
-if errorlevel 1 (
-    call :log_warn ".NET 10 SDK not found. Installing via Chocolatey..."
-    choco install dotnet-sdk --version 10.0.100 -y --no-progress
+set "DOTNET10_OK=0"
+where dotnet >nul 2>&1
+if not errorlevel 1 (
+    dotnet --list-sdks 2>nul | findstr /B "10." >nul 2>&1
+    if not errorlevel 1 set "DOTNET10_OK=1"
+)
+if "%DOTNET10_OK%"=="0" (
+    call :log_warn ".NET 10 SDK not found. Installing via winget..."
+    winget install Microsoft.DotNet.SDK.10 --accept-source-agreements --accept-package-agreements --silent
     if errorlevel 1 (
         call :log_error ".NET 10 SDK install failed. Cannot build desktop app."
         set "ERRORS=1"
@@ -156,8 +161,7 @@ set /a "waited=0"
 :wait_api
     timeout /t 5 /nobreak >nul
     set /a "waited+=5"
-    powershell -NoProfile -Command ^
-        "try { $r=(Invoke-WebRequest 'http://localhost:5100/api/categories' -UseBasicParsing -TimeoutSec 3 -EA Stop).StatusCode; exit ($r -eq 200 ? 0 : 1) } catch { exit 1 }" >nul 2>&1
+    powershell -NoProfile -Command "try { $r=(Invoke-WebRequest 'http://localhost:5100/api/categories' -UseBasicParsing -TimeoutSec 3 -EA Stop).StatusCode; if ($r -eq 200) { exit 0 } else { exit 1 } } catch { exit 1 }" >nul 2>&1
     if not errorlevel 1 (
         call :log_ok "API is responding on http://localhost:5100"
         goto :build_desktop
@@ -272,14 +276,18 @@ if errorlevel 1 (
 goto :eof
 
 :refresh_path
-:: Reload PATH from registry so newly installed tools are available
-for /f "usebackq tokens=2,*" %%A in (
-    `reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v Path 2^>nul`
-) do set "SYS_PATH=%%B"
-for /f "usebackq tokens=2,*" %%A in (
-    `reg query "HKCU\Environment" /v Path 2^>nul`
-) do set "USR_PATH=%%B"
-set "PATH=%SYS_PATH%;%USR_PATH%"
+:: Reload PATH via PowerShell so REG_EXPAND_SZ variables (%ProgramFiles% etc.) are properly expanded
+for /f "usebackq delims=" %%P in (
+    `"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -Command "[Environment]::GetEnvironmentVariable('Path','Machine')"`
+) do set "SYS_PATH=%%P"
+for /f "usebackq delims=" %%P in (
+    `"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -Command "[Environment]::GetEnvironmentVariable('Path','User')"`
+) do set "USR_PATH=%%P"
+if defined USR_PATH (
+    set "PATH=%SYS_PATH%;%USR_PATH%"
+) else (
+    set "PATH=%SYS_PATH%"
+)
 goto :eof
 
 :log_header
