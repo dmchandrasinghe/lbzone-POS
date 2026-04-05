@@ -1,5 +1,6 @@
 using System.Net.Http;
 using System.Windows;
+using System.Windows.Input;
 using LasanthaPOS.Desktop.Services;
 
 namespace LasanthaPOS.Desktop.Views;
@@ -12,6 +13,12 @@ public partial class LoginWindow : Window
     {
         InitializeComponent();
         _api = new ApiService();
+    }
+
+    private void Window_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+            BtnLogin_Click(sender, e);
     }
 
     private async void BtnLogin_Click(object sender, RoutedEventArgs e)

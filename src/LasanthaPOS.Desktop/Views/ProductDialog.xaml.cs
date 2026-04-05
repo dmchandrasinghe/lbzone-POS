@@ -1,3 +1,4 @@
+using System.Net.Http;
 using System.Windows;
 using LasanthaPOS.Desktop.Models;
 using LasanthaPOS.Desktop.Services;
@@ -61,17 +62,32 @@ public partial class ProductDialog : Window
             return;
         }
 
-        int? warranty = int.TryParse(TxtWarranty.Text, out var w) ? w : null;
         var category = CboCategory.SelectedItem as Category;
         var supplier = CboSupplier.SelectedItem as Supplier;
+
+        if (category is null)
+        {
+            TxtError.Text = "Please select a category.";
+            TxtError.Visibility = Visibility.Visible;
+            return;
+        }
+
+        if (supplier is null)
+        {
+            TxtError.Text = "Please select a supplier.";
+            TxtError.Visibility = Visibility.Visible;
+            return;
+        }
+
+        int? warranty = int.TryParse(TxtWarranty.Text, out var w) ? w : null;
 
         var product = new
         {
             Id = _existing?.Id ?? 0,
             ItemCode = TxtItemCode.Text.Trim(),
             Name = TxtName.Text.Trim(),
-            CategoryId = category?.Id ?? 0,
-            SupplierId = supplier?.Id ?? 0,
+            CategoryId = category.Id,
+            SupplierId = supplier.Id,
             BuyingPrice = buy,
             SellingPrice = sell,
             Quantity = qty,
@@ -81,19 +97,33 @@ public partial class ProductDialog : Window
             WarrantyMonths = warranty
         };
 
+        BtnSave.IsEnabled = false;
         try
         {
+            HttpResponseMessage response;
             if (_existing is null)
-                await _api.PostAsync("products", product);
+                response = await _api.PostAsync("products", product);
             else
-                await _api.PutAsync($"products/{_existing.Id}", product);
+                response = await _api.PutAsync($"products/{_existing.Id}", product);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                TxtError.Text = $"Server error ({(int)response.StatusCode}): {body}";
+                TxtError.Visibility = Visibility.Visible;
+                return;
+            }
 
             DialogResult = true;
         }
         catch (Exception ex)
         {
-            TxtError.Text = $"Error: {ex.Message}";
+            TxtError.Text = $"Connection error: {ex.Message}";
             TxtError.Visibility = Visibility.Visible;
+        }
+        finally
+        {
+            BtnSave.IsEnabled = true;
         }
     }
 

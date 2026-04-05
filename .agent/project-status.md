@@ -40,7 +40,7 @@ Desktop connects to `http://localhost:5100`.
 | Supplier management (name, phone, email)         | ✅     |
 | CSV import of products                           | ✅     |
 | Export CSV template for import                   | ✅     |
-| Export inventory report (PDF / CSV)              | ❌     |
+| Export inventory report (PDF / CSV)              | ✅     |
 | Expiration: month+year input instead of date     | ❌     |
 | Purchase history per item                        | ❌     |
 | Stock adjustment (manual correction)             | ❌     |
@@ -157,6 +157,7 @@ Desktop connects to `http://localhost:5100`.
 | `src/LasanthaPOS.Desktop/Views/ReportPage.xaml(.cs)`           | Daily report UI                               |
 | `src/LasanthaPOS.Desktop/Views/CategoriesSuppliersDialog.xaml` | Category & supplier management dialog         |
 | `docker-compose.yml`                                           | PostgreSQL + API container definitions        |
+| `deploy.bat`                                                   | Full deploy script (choco, docker, build, shortcut) |
 | `lasantha-pos.md`                                              | Full requirements document                    |
 
 ---

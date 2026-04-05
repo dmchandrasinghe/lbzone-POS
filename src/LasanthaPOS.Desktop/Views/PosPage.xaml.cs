@@ -70,7 +70,9 @@ public partial class PosPage : Page
                 ProductName = _selectedProduct.Name,
                 Quantity = qty,
                 UnitPrice = _selectedProduct.SellingPrice,
-                DiscountAmount = disc
+                DiscountAmount = disc,
+                PurchaseDate = _selectedProduct.PurchaseDate,
+                ExpirationDate = _selectedProduct.ExpirationDate
             });
 
         RefreshCart();
@@ -304,7 +306,11 @@ public partial class PosPage : Page
         AddLine($" {"Item",-18} {"Qty x Price",12} {"Total",7}");
         AddDivider();
         foreach (var item in printItems)
+        {
             AddItemRow(item.ProductName, item.Quantity, item.UnitPrice, item.LineTotal);
+            AddLine($"   Buying Date : {item.PurchaseDate:dd/MM/yyyy}");
+            AddLine($"   Expire Date : {(item.ExpirationDate.HasValue ? item.ExpirationDate.Value.ToString("dd/MM/yyyy") : "N/A")}");
+        }
 
         AddDivider('=');
 
