@@ -13,6 +13,7 @@ set "ROOT=%ROOT:~0,-1%"
 set "DESKTOP_PROJ=%ROOT%\src\LasanthaPOS.Desktop\LasanthaPOS.Desktop.csproj"
 set "PUBLISH_DIR=%ROOT%\src\LasanthaPOS.Desktop\bin\Release\net10.0-windows\publish"
 set "EXE_PATH=%PUBLISH_DIR%\LasanthaPOS.Desktop.exe"
+set "PS5=%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe"
 set "ERRORS=0"
 
 call :log_header "LASANTHA POS — BUILD FRONTEND"
@@ -25,7 +26,7 @@ call :log_step "STEP 1" "Checking Chocolatey"
 where choco >nul 2>&1
 if errorlevel 1 (
     call :log_warn "Chocolatey not found. Installing now (requires admin rights)..."
-    powershell -NoProfile -ExecutionPolicy Bypass -Command "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))"
+    "%PS5%" -NoProfile -ExecutionPolicy Bypass -Command "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))"
     if errorlevel 1 (
         call :log_error "Chocolatey installation failed. Install manually from https://chocolatey.org/install"
         set "ERRORS=1"
@@ -44,22 +45,32 @@ if errorlevel 1 (
 call :log_step "STEP 2" "Checking and installing dependencies"
 
 :: --- Git ---
-call :ensure_choco_pkg "Git" "git"
+:: Args: "Display Name"  "choco-package-id"  "binary-to-check"
+call :ensure_choco_pkg "Git" "git" "git"
 call :refresh_path
 
 :: --- .NET 10 SDK ---
 call :log_info "Checking .NET 10 SDK..."
-dotnet --list-sdks 2>nul | findstr /B "10\." >nul 2>&1
-if errorlevel 1 (
-    call :log_warn ".NET 10 SDK not found. Installing via Chocolatey..."
-    choco install dotnet-sdk --version 10.0.100 -y --no-progress
-    if errorlevel 1 (
-        call :log_error ".NET 10 SDK install failed. Cannot build the desktop app."
-        set "ERRORS=1"
-        goto :done
-    )
+set "DOTNET10_OK=0"
+where dotnet >nul 2>&1
+if not errorlevel 1 (
+    dotnet --list-sdks 2>nul | findstr /B "10." >nul 2>&1
+    if not errorlevel 1 set "DOTNET10_OK=1"
+)
+if "%DOTNET10_OK%"=="0" (
+    call :log_warn ".NET 10 SDK not found. Installing via Microsoft install script..."
+    call :install_dotnet10
     call :refresh_path
-    call :log_ok ".NET 10 SDK installed."
+    if exist "%ProgramFiles%\dotnet\dotnet.exe" (
+        set "PATH=%ProgramFiles%\dotnet;%PATH%"
+        call :log_ok ".NET 10 SDK installed."
+    ) else if exist "%USERPROFILE%\.dotnet\dotnet.exe" (
+        set "PATH=%USERPROFILE%\.dotnet;%PATH%"
+        call :log_ok ".NET 10 SDK installed (user-scoped)."
+    ) else (
+        call :log_error ".NET 10 SDK install may have failed — dotnet.exe not found."
+        set "ERRORS=1"
+    )
 ) else (
     call :log_ok ".NET 10 SDK is available."
 )
@@ -68,6 +79,13 @@ if errorlevel 1 (
 :: STEP 3 — Restore NuGet packages
 :: ============================================================
 call :log_step "STEP 3" "Restoring NuGet packages"
+
+where dotnet >nul 2>&1
+if errorlevel 1 (
+    call :log_error "dotnet CLI not found — cannot build desktop app."
+    set "ERRORS=1"
+    goto :done
+)
 
 dotnet restore "%DESKTOP_PROJ%"
 if errorlevel 1 (
@@ -177,30 +195,75 @@ echo   [ERR]  %~1
 goto :eof
 
 :ensure_choco_pkg
-:: %1 = display name, %2 = choco package id
+:: %1 = display name   %2 = choco package id   %3 = binary to check in PATH
 call :log_info "Checking %~1..."
-where %~2 >nul 2>&1
+where %~3 >nul 2>&1
 if errorlevel 1 (
-    call :log_warn "%~1 not found. Installing via Chocolatey..."
-    choco install %~2 -y --no-progress
+    call :log_warn "%~1 not found."
+    where choco >nul 2>&1
     if errorlevel 1 (
-        call :log_warn "%~1 install failed — continuing anyway."
+        call :log_error "Chocolatey not available — cannot auto-install %~1."
+        set "ERRORS=1"
     ) else (
-        call :refresh_path
-        call :log_ok "%~1 installed."
+        call :log_info "Installing %~1 via Chocolatey..."
+        choco install %~2 -y --no-progress
+        if errorlevel 1 (
+            call :log_error "%~1 install failed."
+            set "ERRORS=1"
+        ) else (
+            call :refresh_path
+            call :log_ok "%~1 installed."
+        )
     )
 ) else (
     call :log_ok "%~1 is available."
-    choco upgrade %~2 -y --no-progress >nul 2>&1
+    where choco >nul 2>&1
+    if not errorlevel 1 (
+        choco upgrade %~2 -y --no-progress >nul 2>&1
+    )
 )
 goto :eof
 
+:install_dotnet10
+:: Download and run Microsoft's official dotnet-install.ps1 (PS5 compatible)
+:: Tries system-wide install first; falls back to user-scoped (no admin needed)
+set "DI_SCRIPT=%TEMP%\dotnet-install.ps1"
+call :log_info "Downloading dotnet-install.ps1 from Microsoft..."
+"%PS5%" -NoProfile -ExecutionPolicy Bypass -Command "(New-Object System.Net.WebClient).DownloadFile('https://dot.net/v1/dotnet-install.ps1', '%DI_SCRIPT%')"
+if not exist "%DI_SCRIPT%" (
+    call :log_error "Failed to download dotnet-install.ps1."
+    set "ERRORS=1"
+    goto :eof
+)
+call :log_info "Installing .NET 10 SDK system-wide (requires admin)..."
+"%PS5%" -NoProfile -ExecutionPolicy Bypass -File "%DI_SCRIPT%" -Channel 10.0 -InstallDir "%ProgramFiles%\dotnet"
+if errorlevel 1 (
+    call :log_warn "System-wide install failed. Trying user-scoped install..."
+    "%PS5%" -NoProfile -ExecutionPolicy Bypass -File "%DI_SCRIPT%" -Channel 10.0
+    if errorlevel 1 (
+        call :log_error ".NET 10 SDK installation failed."
+        set "ERRORS=1"
+    )
+)
+del "%DI_SCRIPT%" >nul 2>&1
+goto :eof
+
 :refresh_path
-for /f "usebackq tokens=2,*" %%A in (
-    `reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v Path 2^>nul`
-) do set "SYS_PATH=%%B"
-for /f "usebackq tokens=2,*" %%A in (
-    `reg query "HKCU\Environment" /v Path 2^>nul`
-) do set "USR_PATH=%%B"
-set "PATH=%SYS_PATH%;%USR_PATH%"
+:: Write expanded PATH values to temp files then read them back.
+:: Uses temp files to avoid for/f truncation on very long PATH strings.
+:: Uses PS5 (powershell.exe) to ensure it works regardless of pwsh availability.
+"%PS5%" -NoProfile -Command "[Environment]::GetEnvironmentVariable('Path','Machine')" > "%TEMP%\_lbpos_syspath.tmp" 2>nul
+"%PS5%" -NoProfile -Command "[Environment]::GetEnvironmentVariable('Path','User')"    > "%TEMP%\_lbpos_usrpath.tmp" 2>nul
+set "SYS_PATH="
+set "USR_PATH="
+for /f "usebackq delims=" %%P in ("%TEMP%\_lbpos_syspath.tmp") do set "SYS_PATH=%%P"
+for /f "usebackq delims=" %%P in ("%TEMP%\_lbpos_usrpath.tmp") do set "USR_PATH=%%P"
+del "%TEMP%\_lbpos_syspath.tmp" "%TEMP%\_lbpos_usrpath.tmp" >nul 2>&1
+if defined SYS_PATH (
+    if defined USR_PATH (
+        set "PATH=%SYS_PATH%;%USR_PATH%"
+    ) else (
+        set "PATH=%SYS_PATH%"
+    )
+)
 goto :eof
