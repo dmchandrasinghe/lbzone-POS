@@ -48,10 +48,7 @@ call :log_step "STEP 2" "Checking Chocolatey"
 where choco >nul 2>&1
 if errorlevel 1 (
     call :log_warn "Chocolatey not found. Installing now (requires admin rights)..."
-    powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-        "Set-ExecutionPolicy Bypass -Scope Process -Force; ^
-         [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; ^
-         iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))"
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))"
     if errorlevel 1 (
         call :log_error "Chocolatey installation failed. Some dependencies may not install correctly."
         set "ERRORS=1"
